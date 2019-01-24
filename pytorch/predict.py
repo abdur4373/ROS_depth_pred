@@ -13,6 +13,7 @@ from utils import *
 import torch
 from torch.autograd import Variable
 from torchvision.utils import save_image
+import skimage.io as io
 import sys
 class DepthPrediction:
 	def __init__(self, weight_file, batch_size):
@@ -24,7 +25,8 @@ class DepthPrediction:
 	def print_model(self):
 		print(self.model)
 	def predict(self, img):
-		cropped_img = center_crop(img, 304, 228)
+		#cropped_img = center_crop(img, 304, 228)
+		cropped_img=img
 		scipy.misc.toimage(cropped_img, cmin = 0.0, cmax = 1.0).save('cropped_img.jpg')
 		pytorch_img = torch.from_numpy(cropped_img).permute(2,0,1).unsqueeze(0).float()
 		save_image(pytorch_img, "input_image.jpg")
@@ -32,7 +34,7 @@ class DepthPrediction:
 		print(list(pytorch_input.size()))
 		t = time.time()
 		out_img = self.model(pytorch_input)
-		save_image(out_img.data, "output_image.jpg") #normalize = True
+		save_image(out_img.data, "output_image.jpg")# normalize=True)
 		print("Finished image in {0} s".format(time.time() - t))
 	def export_model(self):
 		x = Variable(torch.randn(1, 3, 228, 304), requires_grad=True)
