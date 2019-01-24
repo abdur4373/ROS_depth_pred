@@ -26,7 +26,8 @@ class DepthPrediction:
 		print(self.model)
 	def predict(self, img):
 		#cropped_img = center_crop(img, 304, 228)
-		cropped_img=img
+		#cropped_img=img
+		cropped_img = down_size(img,304,228)
 		scipy.misc.toimage(cropped_img, cmin = 0.0, cmax = 1.0).save('cropped_img.jpg')
 		pytorch_img = torch.from_numpy(cropped_img).permute(2,0,1).unsqueeze(0).float()
 		save_image(pytorch_img, "input_image.jpg")
