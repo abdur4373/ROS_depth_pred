@@ -281,15 +281,18 @@ class Model(nn.Module):
 		out = self.bn1(out)
 		out = self.relu1(out)
 		out = self.max_pool1(out)
+		print(out.size())
 
 		out = self.proj1(out)
 		out = self.res1_1(out)
 		out = self.res1_2(out)
+		print(out.size())
 
 		out = self.proj2(out)
 		out = self.res2_1(out)
 		out = self.res2_2(out)
 		out = self.res2_3(out)
+		print(out.size())
 
 		out = self.proj3(out)
 		out = self.res3_1(out)
@@ -297,25 +300,31 @@ class Model(nn.Module):
 		out = self.res3_3(out)
 		out = self.res3_4(out)
 		out = self.res3_5(out)
+		print(out.size())
 
 		out = self.proj4(out)
 		out = self.res4_1(out)
 		out = self.res4_2(out)
-
+		print(out.size())
 
 		out = self.conv2(out)
 		out = self.bn2(out)
+		print(out.size())
 
 		out = self.UpProj1(out)
+		print(out.size())
 
 		out = self.UpProj2(out)
 
 		out = self.UpProj3(out)
+		print(out.size())
 
 		out = self.UpProj4(out)
+		print(out.size())
 
 		out = self.conv3(out)
 		out = self.relu2(out)
+		print(out.size())
 
 		# insert upsampling here?
 

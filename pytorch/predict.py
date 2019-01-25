@@ -27,7 +27,10 @@ class DepthPrediction:
 	def predict(self, img):
 		#cropped_img = center_crop(img, 304, 228)
 		#cropped_img=img
-		cropped_img = down_size(img,304,228)
+		resize_img = down_size(img,320,240)
+		resize_img_save = torch.from_numpy(resize_img).permute(2, 0, 1).unsqueeze(0).float()
+		save_image(resize_img_save, "resize_image.jpg")
+		cropped_img = center_crop(resize_img, 304, 228)
 		scipy.misc.toimage(cropped_img, cmin = 0.0, cmax = 1.0).save('cropped_img.jpg')
 		pytorch_img = torch.from_numpy(cropped_img).permute(2,0,1).unsqueeze(0).float()
 		save_image(pytorch_img, "input_image.jpg")
@@ -46,6 +49,8 @@ class DepthPrediction:
                                export_params=True)      # store the trained parameter weights inside the model file
 if __name__ == '__main__':
 	prediction = DepthPrediction('NYU_ResNet-UpProj.npy', 1)
-	img = img_as_float(imread(sys.argv[1]))
+	#img = img_as_float(imread(sys.argv[1]))
+	# img=imread(sys.argv[1])
+	img=Image.open(sys.argv[1])
 	prediction.predict(img)
 	prediction.export_model()
