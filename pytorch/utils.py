@@ -1,10 +1,8 @@
 # Mohammad Saad
 # utils.py
 # Various utilities
-import skimage.io as io
-import numpy as np
 from PIL import Image
-from numpy.core._multiarray_umath import ndarray
+# from numpy.core._multiarray_umath import ndarray
 from skimage import img_as_float
 
 def center_crop(image, cropX, cropY):
