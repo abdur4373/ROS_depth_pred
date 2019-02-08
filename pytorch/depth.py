@@ -4,20 +4,20 @@ import skimage.io as io
 from utils import *
 
 
-def depth_gt(i):
+def depth_gt(test_image):
     path_to_depth = '/home/maq/PycharmProjects/Deeper-Depth-Prediction_2/pytorch/nyu_depth_v2_labeled .mat'
 # read mat file
     f = h5py.File(path_to_depth)
-    data = f.get('images')
+
     # read 0-th image. original format is [3 x 640 x 480], uint8
-    img = f['images'][i]
+    img = f['images'][test_image]
     # # reshape
     img_ = np.empty([480, 640, 3])
     img_[:, :, 0] = img[0, :, :].T
     img_[:, :, 1] = img[1, :, :].T
     img_[:, :, 2] = img[2, :, :].T
     img__ = img_.astype('float32')
-    io.imsave("test2.jpg", img__ / 255.0)
+    io.imsave("test_image.jpg", img__ / 255.0)
     # io.imshow(img__/255.0)
     # io.show()
 
@@ -30,7 +30,7 @@ def depth_gt(i):
     # io.show()
     # read corresponding depth (aligned to the image, in-painted) of size [640 x 480], float64
 
-    depth = f['depths'][i]
+    depth = f['depths'][test_image]
 
     sliced_depth_gt = depth[16:624, 12:468]
     sliced_depth_gt = sliced_depth_gt.T
@@ -44,7 +44,7 @@ def depth_gt(i):
     depth_[:, :, 2] = sliced_depth_gt_norm[:, :]
 
     depth_scale = np.amax(sliced_depth_gt_diff)
-    print(depth_scale)
+    # print(depth_scale)
     io.imsave("sliced_depth_gt.jpg", depth_)
     return sliced_depth_gt
     # print(depth_[:,:,1])

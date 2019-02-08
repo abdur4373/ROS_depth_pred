@@ -2,12 +2,11 @@
 # Model for Deeper Depth Prediction
 # 2/19/2018
 
+import numpy as np
 import torch
 import torch.nn as nn
-import torchvision.transforms as transforms
 from torch.autograd import Variable
 
-import numpy as np
 
 class ResidualBlock(nn.Module):
 
@@ -169,10 +168,14 @@ class FastUpConvolution(nn.Module):
 		all_indices_before = range(int(self.batch_size))
 		all_indices_after = range(dims[3])
 
-		A_linear_indices = self.prepare_indices(all_indices_before, A_row_indices, A_col_indices, all_indices_after, dims)
-		B_linear_indices = self.prepare_indices(all_indices_before, B_row_indices, B_col_indices, all_indices_after, dims)
-		C_linear_indices = self.prepare_indices(all_indices_before, C_row_indices, C_col_indices, all_indices_after, dims)
-		D_linear_indices = self.prepare_indices(all_indices_before, D_row_indices, D_col_indices, all_indices_after, dims)
+		A_linear_indices = self.prepare_indices(all_indices_before, A_row_indices, A_col_indices, all_indices_after,
+												dims).cuda()  # remove .cuda() if not to be run on GPU
+		B_linear_indices = self.prepare_indices(all_indices_before, B_row_indices, B_col_indices, all_indices_after,
+												dims).cuda()
+		C_linear_indices = self.prepare_indices(all_indices_before, C_row_indices, C_col_indices, all_indices_after,
+												dims).cuda()
+		D_linear_indices = self.prepare_indices(all_indices_before, D_row_indices, D_col_indices, all_indices_after,
+												dims).cuda()
 
 		A_flat = (out1.permute(1, 0, 2, 3)).contiguous().view(-1)
 		B_flat = (out2.permute(1, 0, 2, 3)).contiguous().view(-1)
@@ -181,7 +184,8 @@ class FastUpConvolution(nn.Module):
 
 		size_ = A_linear_indices.size()[0] + B_linear_indices.size()[0]+C_linear_indices.size()[0]+D_linear_indices.size()[0]
 
-		Y_flat = torch.FloatTensor(size_).zero_()
+		Y_flat = torch.cuda.FloatTensor(size_).zero_()
+		# Y_flat = torch.FloatTensor(size_).zero_()         #orignal
 
 		Y_flat.scatter_(0, A_linear_indices.squeeze(),A_flat.data)
 		Y_flat.scatter_(0, B_linear_indices.squeeze(),B_flat.data)
@@ -281,18 +285,18 @@ class Model(nn.Module):
 		out = self.bn1(out)
 		out = self.relu1(out)
 		out = self.max_pool1(out)
-		print(out.size())
+		# print(out.size())
 
 		out = self.proj1(out)
 		out = self.res1_1(out)
 		out = self.res1_2(out)
-		print(out.size())
+		# print(out.size())
 
 		out = self.proj2(out)
 		out = self.res2_1(out)
 		out = self.res2_2(out)
 		out = self.res2_3(out)
-		print(out.size())
+		# print(out.size())
 
 		out = self.proj3(out)
 		out = self.res3_1(out)
@@ -300,31 +304,31 @@ class Model(nn.Module):
 		out = self.res3_3(out)
 		out = self.res3_4(out)
 		out = self.res3_5(out)
-		print(out.size())
+		# print(out.size())
 
 		out = self.proj4(out)
 		out = self.res4_1(out)
 		out = self.res4_2(out)
-		print(out.size())
+		# print(out.size())
 
 		out = self.conv2(out)
 		out = self.bn2(out)
-		print(out.size())
+		# print(out.size())
 
 		out = self.UpProj1(out)
-		print(out.size())
+		# print(out.size())
 
 		out = self.UpProj2(out)
 
 		out = self.UpProj3(out)
-		print(out.size())
+		# print(out.size())
 
 		out = self.UpProj4(out)
-		print(out.size())
+		# print(out.size())
 
 		out = self.conv3(out)
 		out = self.relu2(out)
-		print(out.size())
+		# print(out.size())
 
 		# insert upsampling here?
 
