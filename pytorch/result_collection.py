@@ -21,7 +21,7 @@ if __name__ == '__main__':
     rmse_l_array = []
     s_no = 1
 
-    for test_image in range(1448):
+    for test_image in range(1448):  # 1448
         get_scene_name = scenes[0][test_image]
         obj = f[get_scene_name]
         scene_name = ''.join(chr(character) for character in obj[:])
