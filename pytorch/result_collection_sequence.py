@@ -1,10 +1,11 @@
 # import skimage.io as io
-import rospy
-# from sensor_msgs.msg import Image, CameraInfo
-from camera_msg import *
-from cv_bridge import CvBridge
-
+#import skimage.io as io
 from predict import *
+from cv_bridge import CvBridge, CvBridgeError
+from sensor_msgs.msg import Image, CameraInfo
+from camera_msg import *
+import rospy
+
 
 if __name__ == '__main__':
     rospy.init_node('depth_prediction_node')

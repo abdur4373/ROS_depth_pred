@@ -1,7 +1,8 @@
+import numpy as np
+import skimage.io as io
 # from depth import*
-from scipy import interpolate
-
 from predict import *
+from scipy import interpolate
 
 
 def resize_depth_pred(out_img_pred_np):
