@@ -2,7 +2,6 @@
 import rospy
 from cv_bridge import CvBridge
 
-# from sensor_msgs.msg import Image, CameraInfo
 from camera_msg import *
 from predict import *
 
