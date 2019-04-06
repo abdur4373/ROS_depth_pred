@@ -1,13 +1,10 @@
 import time
 
-import torch
-from PIL import Image
-from comparisons import *
-from depth import *
-from model import *
-from resize_test import *
+# from resize_test import *
 from torch.autograd import Variable
-from torchvision.utils import save_image
+
+from depth_img_from_mat import *
+from model import *
 from utils import *
 from weights import *
 
@@ -25,19 +22,18 @@ class DepthPrediction:
 		print(self.model)
 
 	def predict(self, img):
-
-		resize_img = down_size(img,320,240)
-		resize_img_save = torch.from_numpy(resize_img).permute(2, 0, 1).unsqueeze(0).float()
-		save_image(resize_img_save, "resize_image.jpg")
+		resize_img = resize_size(img, 320, 240)
+		# resize_img_save = torch.from_numpy(resize_img).permute(2, 0, 1).unsqueeze(0).float()
+		# save_image(resize_img_save, "resize_image.jpg")
 
 		cropped_img = center_crop(resize_img, 304, 228)
-		cropped_img_save = torch.from_numpy(cropped_img).permute(2, 0, 1).unsqueeze(0).float()
-		save_image(cropped_img_save, "cropped_img.jpg")
+		# cropped_img_save = torch.from_numpy(cropped_img).permute(2, 0, 1).unsqueeze(0).float()
+		# save_image(cropped_img_save, "cropped_img.jpg")
 
 		# scipy.misc.toimage(cropped_img, cmin = 0.0, cmax = 1.0).save('cropped_img.jpg')
 
 		pytorch_img = torch.from_numpy(cropped_img).permute(2,0,1).unsqueeze(0).float()
-		save_image(pytorch_img, "input_image.jpg")
+		# save_image(pytorch_img, "input_image.jpg")
 		pytorch_img = pytorch_img.cuda()
 
 		pytorch_input = Variable(pytorch_img)
@@ -75,26 +71,14 @@ class DepthPrediction:
 		# Export the model
 		torch_out = torch.onnx._export(self.model, x.long(), "depth_pred.onnx", export_params=True)  # model being run
 
-# x model input (or a tuple for multiple inputs)
-# where to save the model (can be a file or file-like object
-# store the trained parameter weights inside the model file
-#
-
 
 def main_mod(test_image_no):
-	# if __name__ == '__main__':
+	depth_gt_out, img, rgb_time_sec, rgb_time_nsec = depth_gt(int(test_image_no))
+	# prediction = DepthPrediction('NYU_ResNet-UpProj.npy', 1)    #uncomment for depth prediction
 
-	# depth_gt_out = depth_gt(int(input("Enter image number from 0 to 1448")))
-	depth_gt_out = depth_gt(int(test_image_no))
-	prediction = DepthPrediction('NYU_ResNet-UpProj.npy', 1)
-	# print('depth_gt_out')
-	# print(depth_gt_out, depth_gt_out.shape)
+	# img = Image.open("test_image.jpg")
 
-	# img = img_as_float(imread(sys.argv[1]))   #orignal
-
-	img = Image.open("test_image.jpg")
-
-	out_img_pred_np = prediction.predict(img)
+	# out_img_pred_np = prediction.predict(img)				#uncomment for depth prediction
 
 	# print("Predicted depth values of size 160,128 {0}".format(out_img_pred_np))
 	# print('shape')
@@ -105,26 +89,33 @@ def main_mod(test_image_no):
 	# print(depth_gt_out.shape)
 	# print(depth_gt_out.size)
 
-	depth_pred_inter = resize_depth_pred(out_img_pred_np)
+	# depth_pred_inter = resize_depth_pred(out_img_pred_np)			#uncomment for depth prediction
+
+	depth_gt_inter = append_nan_depth_gt(depth_gt_out)  # gives gt depth of size 640 by 480
+
+	# cropped_img = center_crop(img, 572, 468)
+	# resize_img = resize_size(cropped_img, 640, 480)
 
 	# print('depth_pred_inter')
 	# print(depth_pred_inter, depth_pred_inter.shape)
+	#
+	# # print(list(depth_gt_out.shape))
+	# # print("GT Depth values {0}" .format(depth_gt_out))
 
-	# print(list(depth_gt_out.shape))
-	# print("GT Depth values {0}" .format(depth_gt_out))
-
-	delta_percent_1, delta_percent_2, delta_percent_3 = delta_calculate(depth_pred_inter, depth_gt_out)
-
-	abs_rel = abs_rel_diff(depth_pred_inter, depth_gt_out)
-
-	sqr_rel = sqr_rel_diff(depth_pred_inter, depth_gt_out)
-
-	rmse_lin = rmse_linear(depth_pred_inter, depth_gt_out)
-
-	rmse_l = rmse_log(depth_pred_inter, depth_gt_out)
-	benchmarks = [delta_percent_1, delta_percent_2, delta_percent_3, abs_rel, sqr_rel, rmse_lin, rmse_l]
+	# delta_percent_1, delta_percent_2, delta_percent_3 = delta_calculate(depth_pred_inter, depth_gt_out)
+	#
+	# abs_rel = abs_rel_diff(depth_pred_inter, depth_gt_out)
+	#
+	# sqr_rel = sqr_rel_diff(depth_pred_inter, depth_gt_out)
+	#
+	# rmse_lin = rmse_linear(depth_pred_inter, depth_gt_out)
+	#
+	# rmse_l = rmse_log(depth_pred_inter, depth_gt_out)
+	# benchmarks = [delta_percent_1, delta_percent_2, delta_percent_3, abs_rel, sqr_rel, rmse_lin, rmse_l]
 	# prediction.print_model()
 
 	# prediction.export_model()
 
-	return delta_percent_1, delta_percent_2, delta_percent_3, abs_rel, sqr_rel, rmse_lin, rmse_l
+	# return delta_percent_1, delta_percent_2, delta_percent_3, abs_rel, sqr_rel, rmse_lin, rmse_l
+
+	return img, depth_gt_inter, rgb_time_sec, rgb_time_nsec

@@ -1,14 +1,23 @@
 # from predict import*
 import numpy as np
-
+import numpy.ma as ma
 
 def delta_calculate(depth_pred_inter, depth_gt_out):
 
+
     pred_div_gt = np.true_divide(depth_pred_inter, depth_gt_out)
+    pred_div_gt_masked = ma.masked_invalid(pred_div_gt)
     gt_div_pred = np.true_divide(depth_gt_out, depth_pred_inter)
-    delta_1 = np.maximum(pred_div_gt, gt_div_pred) < 1.25
-    delta_2 = np.maximum(pred_div_gt, gt_div_pred) < np.square(1.25)
-    delta_3 = np.maximum(pred_div_gt, gt_div_pred) < np.power(1.25, 3)
+    gt_div_pred_masked = ma.masked_equal(gt_div_pred, 0)
+    delta_1 = np.maximum(pred_div_gt_masked, gt_div_pred_masked) < 1.25
+    delta_2 = np.maximum(pred_div_gt_masked, gt_div_pred_masked) < np.square(1.25)
+    delta_3 = np.maximum(pred_div_gt_masked, gt_div_pred_masked) < np.power(1.25, 3)
+
+    # pred_div_gt = np.true_divide(depth_pred_inter, depth_gt_out)
+    # gt_div_pred = np.true_divide(depth_gt_out, depth_pred_inter)
+    # delta_1 = np.maximum(pred_div_gt, gt_div_pred) < 1.25
+    # delta_2 = np.maximum(pred_div_gt, gt_div_pred) < np.square(1.25)
+    # delta_3 = np.maximum(pred_div_gt, gt_div_pred) < np.power(1.25, 3)
     # print('maximum value')
     # print(delta.size)
 
@@ -20,11 +29,13 @@ def delta_calculate(depth_pred_inter, depth_gt_out):
 
     # print('lenght_total_max_value')
     # print(lenght_total_max_value, total_max_value.shape)
+    delta_percent_1 = total_no_of_delta_1 * 100 / delta_1.count()
+    delta_percent_2 = total_no_of_delta_2 * 100 / delta_2.count()
+    delta_percent_3 = total_no_of_delta_3 * 100 / delta_3.count()
 
-    delta_percent_1 = total_no_of_delta_1 * 100 / delta_1.size
-    delta_percent_2 = total_no_of_delta_2 * 100 / delta_2.size
-    delta_percent_3 = total_no_of_delta_3 * 100 / delta_3.size
-
+    # delta_percent_1 = total_no_of_delta_1 * 100 / delta_1.size
+    # delta_percent_2 = total_no_of_delta_2 * 100 / delta_2.size
+    # delta_percent_3 = total_no_of_delta_3 * 100 / delta_3.size
     # print("Delta_1: {0}".format(delta_percent_1),"%")
     # print("Delta_2: {0}".format(delta_percent_2), "%")
     # print("Delta_3: {0}".format(delta_percent_3), "%")
@@ -44,8 +55,9 @@ def delta_calculate(depth_pred_inter, depth_gt_out):
 
 def abs_rel_diff(depth_pred_inter, depth_gt_out):
     abs_diff_pixel_wise = np.true_divide(abs(np.subtract(depth_pred_inter, depth_gt_out)), depth_gt_out)
-    num_of_pixels = depth_gt_out.size
-    abs_diff = np.sum(abs_diff_pixel_wise) / num_of_pixels
+    abs_diff_pixel_wise_masked = ma.masked_invalid(abs_diff_pixel_wise)
+    num_of_pixels = abs_diff_pixel_wise_masked.count()
+    abs_diff = np.sum(abs_diff_pixel_wise_masked) / num_of_pixels
 
     # print("number of pixels {0}".format(num_of_pixels))
     # print("Absolute relative difference {0}".format(abs_diff))
@@ -54,8 +66,9 @@ def abs_rel_diff(depth_pred_inter, depth_gt_out):
 
 def sqr_rel_diff(depth_pred_inter, depth_gt_out):
     sqr_diff_pixel_wise = np.true_divide(np.square(np.subtract(depth_pred_inter, depth_gt_out)), depth_gt_out)
-    num_of_pixels = depth_gt_out.size
-    sqr_diff = np.sum(sqr_diff_pixel_wise) / num_of_pixels
+    abs_diff_pixel_wise_masked = ma.masked_invalid(sqr_diff_pixel_wise)
+    num_of_pixels = abs_diff_pixel_wise_masked.count()
+    sqr_diff = np.sum(abs_diff_pixel_wise_masked) / num_of_pixels
 
     # print("Squared relative difference {0}".format(sqr_diff))
     return sqr_diff

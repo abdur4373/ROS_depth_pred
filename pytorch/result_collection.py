@@ -1,5 +1,3 @@
-import h5py
-import skimage.io as io
 from predict import *
 
 if __name__ == '__main__':
@@ -27,9 +25,9 @@ if __name__ == '__main__':
         scene_name = ''.join(chr(character) for character in obj[:])
         # scene_name_array.append(scene_name)
         # scene_name_array[0,j] = str1
-        sequence = 'bedroom' in scene_name
+        sequence = 'office' in scene_name
 
-        sequence_office = 'office' in scene_name
+        sequence_office = 'bedroom' in scene_name
 
         if sequence == True:
 
