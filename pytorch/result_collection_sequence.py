@@ -1,8 +1,9 @@
 # import skimage.io as io
 import rospy
+# from sensor_msgs.msg import Image, CameraInfo
+from camera_msg import *
 from cv_bridge import CvBridge
 
-from camera_msg import *
 from predict import *
 
 if __name__ == '__main__':
